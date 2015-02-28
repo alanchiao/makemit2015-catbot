@@ -19,6 +19,7 @@
     var defaultMoveSpeed = 2;
 
     function sendInstruction(action, speed) {
+      /**
       $.post(robot, 
       {
         "action": action,
@@ -28,8 +29,12 @@
         console.log(status);
       });
       console.log("sent instruction");
+      **/
     }
 
+    /**
+    * Control Scheme
+    **/
   
     var initMyo = function() {
       var hub, currentPose, title;
@@ -37,18 +42,40 @@
       hub.on('connect', function() {
         console.log("connected");
       });
+
+      var THRESHOLD = 130
+      var minGyro = 0;
+      hub.on('frame', function(frame) {
+        var gz = frame.gyro.z;
+        if (gz < THRESHOLD && gz > -THRESHOLD) { // then not moving
+          if (minGyro !== 0) {
+            if (minGyro < -THRESHOLD*5) {
+              console.log("going too fast")
+            } else if (minGyro < -THRESHOLD*3) {
+              console.log("move forward by 3")
+            } else if (minGyro < -THRESHOLD*2) {
+              console.log("move forward by 2")
+            } else if (minGyro < -THRESHOLD) {
+              console.log("move forward by 1")
+            }
+          }
+          minGyro = 0
+        } else if (gz < minGyro) { // speeding up
+          minGyro = gz;
+        }
+      });
       hub.on('pose', function(pose) {
         switch(pose.type) {
           case pose.POSE_FIST:
-            console.log("fist");
+            console.log("stop");
             sendInstruction(stop, 0);
             break;
           case pose.POSE_WAVE_IN:
-            console.log("wave_in");
+            console.log("turn left");
             sendInstruction(turnLeft, defaultTurnSpeed);
             break;
           case pose.POSE_WAVE_OUT:
-            console.log("wave_out");
+            console.log("turn right");
             sendInstruction(turnRight, defaultTurnSpeed);
             break;
           case pose.POSE_FINGERS_SPREAD:
