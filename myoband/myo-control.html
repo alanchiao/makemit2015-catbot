@@ -1,0 +1,41 @@
+<html>
+<head>
+    <title>Accel rotation</title>
+    <script src="myojs-0.8.7.js"></script>
+    <script src="lib/three.js"></script>
+
+</head>
+<body>
+</body>
+<script>
+    var initMyo = function() {
+      var hub, currentPose, title;
+      hub = new Myo.Hub();
+      hub.on('connect', function() {
+        console.log("connected");
+      });
+      hub.on('pose', function(pose) {
+        switch(pose.type) {
+          case pose.POSE_FIST:
+            console.log("fist");
+            break;
+          case pose.POSE_WAVE_IN:
+            console.log("wave_in");
+            break;
+          case pose.POSE_WAVE_OUT:
+            console.log("wave_out");
+            break;
+          case pose.POSE_FINGERS_SPREAD:
+            console.log("fingers_spread");
+            break;
+          /**
+          case pose.POSE_TWIST_IN:
+            console.log("twist_in");
+            break;
+          **/
+        }
+      });
+    };
+    initMyo();
+</script>
+</html>
