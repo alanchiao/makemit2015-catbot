@@ -330,7 +330,6 @@ TSL.prototype.getLuminosity = function(channel, callback) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-/*
 function test() {
     I2C1.setup({sda:B7, scl:B6});
     var tsl = new TSL(I2C1);
@@ -349,6 +348,3 @@ function test() {
 }
 
 test();
-*/
-
-module.exports = TSL;
