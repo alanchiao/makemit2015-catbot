@@ -1,6 +1,6 @@
 var Buffer = require('buffer').Buffer;
 var fs = require('fs');
-var controllerFile = 'controller';
+var controllerFile = '../controller';
 
 var http = require('http');
 var url = require('url');
@@ -10,13 +10,11 @@ var maxForwardSpeed = 4;
 console.log('starting...');
 
 var commandMotors = function(leftMotorSpeed, rightMotorSpeed) {
-    console.log('writing')
     var myBuffer= new Buffer(3);
     myBuffer[0] = 255;
     myBuffer[1] = leftMotorSpeed;
     myBuffer[2] = rightMotorSpeed;
-    console.log(fs.appendFileSync(controllerFile, myBuffer))
-    console.log('finished writing');
+    fs.appendFileSync(controllerFile, myBuffer);
 }
 
 var drive = function(forwardSpeed, rotationSpeed) {
@@ -29,19 +27,15 @@ var drive = function(forwardSpeed, rotationSpeed) {
     commandMotors(leftMotorSpeed, rightMotorSpeed);
 }
 
-commandMotors(48, 64);
-commandMotors(100,101);
-commandMotors(102,103);
 http.createServer(function (req, res) {
-    console.log(req)
+    //console.log(req)
 
-    if (req.method == 'POST') {
+    if (req.method == 'GET') {
 
-        console.log(req.body);
-
-        action = req.body.action;
-        velocity = req.body.velocity;
-
+        query = url.parse(req.url, true).query;
+        action = query['action'];
+        velocity = query['velocity'];
+        console.log("action: " + action + ", velocity: " + velocity);
         if (action == 'MoveForward') {
             drive(velocity, 0);
         }
@@ -59,12 +53,17 @@ http.createServer(function (req, res) {
         }
 
         // pipe the request data to the response to view on the web
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        res.setHeader('Access-Control-Allow-Headers', 'Origin, Accept, X-Requested-With, Content-Type');
+        res.setHeader('Access-Control-Allow-Credentials', true);
         res.writeHead(200, {'Content-Type': 'text/plain'});
-        req.end('You posted something.\n');
+        res.end('You posted something.\n');
 
     } else {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.writeHead(200, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin':'*'});
         res.end('Hello, world!\n');
     }
 
-}).listen(1234);
+}).listen(8080);
