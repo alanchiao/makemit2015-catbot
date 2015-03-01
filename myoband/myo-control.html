@@ -9,7 +9,7 @@
 <body>
 </body>
 <script>
-    var robot1 = "18.189.97.245";
+    var robot1 = "http://18.189.97.245:8080";
     var robotInControl = robot1;
     var turnRight = "TurnRight";
     var turnLeft = "TurnLeft";
@@ -18,18 +18,20 @@
     var defaultTurnSpeed = 1;
     var defaultMoveSpeed = 2;
 
-    function sendInstruction(action, speed) {
-      $.post(robot, 
-      {
-        "action": action,
-        "velocity" : speed
-      },
-      function(data, status) {
-        console.log(status);
-      });
-      console.log("sent instruction");
+   function sendInstruction(action, speed) {
+      $.ajax({
+        url: robotInControl, 
+        type: 'GET',
+        crossDomain: true,
+        data:{
+          "action": action,
+          "velocity" : speed
+        },
+        success: function(data, status) {
+          console.log(status);
+        }});
+        console.log("sent instruction");
     }
-
     /**
     * Control Scheme
     **/
@@ -43,6 +45,7 @@
 
       var THRESHOLD = 130
       var minGyro = 0;
+      /**
       hub.on('frame', function(frame) {
         var gz = frame.gyro.z;
         if (gz < THRESHOLD && gz > -THRESHOLD) { // then not moving
@@ -62,6 +65,7 @@
           minGyro = gz;
         }
       });
+      **/
       hub.on('pose', function(pose) {
         switch(pose.type) {
           case pose.POSE_FIST:
@@ -77,7 +81,7 @@
             sendInstruction(turnRight, defaultTurnSpeed);
             break;
           case pose.POSE_FINGERS_SPREAD:
-            console.log("fingers_spread");
+            console.log("move forward 2");
             sendInstruction(moveForward, defaultMoveSpeed);
             break;
           /**
