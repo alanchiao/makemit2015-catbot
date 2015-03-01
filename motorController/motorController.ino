@@ -13,7 +13,7 @@
 typedef enum {ZEROBYTES, ONEBYTE, TWOBYTES } state;
 int fd;
 char buf[MAX_BUF];
-state currState;
+state currState = ZEROBYTES;
 char leftMotorSpeed;
 char rightMotorSpeed;
 char ALIGNMENT_NUMBER = 255;
@@ -68,18 +68,29 @@ void controllerSetup(){
   /* open, read, and display the message from the FIFO */
   Serial.print("About to read");
   fd = open(myfifo, O_RDONLY);
-  Serial.print("before making motor shield object");
+  Serial.print("before making motor shield object\n");
   Adafruit_MotorShield AFMS = Adafruit_MotorShield();
   leftMotor = AFMS.getMotor(1);
-  leftMotor->setSpeed(0);
   rightMotor = AFMS.getMotor(3);
-  rightMotor->setSpeed(0);
-  Serial.print("before afms begin");
   AFMS.begin();
+  leftMotor->setSpeed(100);
+  rightMotor->setSpeed(100);
+  Serial.println("ABOUT TO CALL MOTOR RUN IN SETUP:");
+  
+  while (true) {
+    //sensorLoop();
+    controllerLoop();
+    delay(2000);
+  }
+  
+  Serial.println("before afms begin");
+  Serial.println((int) leftMotor);
 }
 
 void loop() {
   //sensorLoop();
+  
+  delay(1000);
   controllerLoop();
 }
 
@@ -112,6 +123,7 @@ void sensorLoop() {
 }
 
 void controllerLoop() {
+  
   // put your main code here, to run repeatedly: 
   // Read from the pipe (3 bytes)
   // We wait until we see a 0 byte
@@ -122,6 +134,20 @@ void controllerLoop() {
   Serial.print(ALIGNMENT_NUMBER);
   Serial.print("\n");
   int bytesRead = read(fd, buf, MAX_BUF);
+  if (bytesRead != 0) {
+   leftMotorSpeed = 150;
+    rightMotorSpeed = 150;
+   leftMotor -> setSpeed(leftMotorSpeed);
+    rightMotor -> setSpeed(rightMotorSpeed);
+   leftMotor -> run(FORWARD);
+    rightMotor -> run(FORWARD);
+   delay(3000);
+  leftMotor -> setSpeed(0);
+   rightMotor -> setSpeed(0);
+    leftMotor -> run(FORWARD);
+   rightMotor -> run(FORWARD);
+ }
+  /*
   int converted = buf[0];
   Serial.println(converted);
   if (bytesRead == 0) {return;}
@@ -161,6 +187,20 @@ void controllerLoop() {
       currState = TWOBYTES;
     }
   } 
+  
+  /*
+  Serial.println((int) leftMotor);
+  leftMotor->setSpeed(100);
+  Serial.println((int) leftMotor);
+  rightMotor->setSpeed(100);
+  Serial.println((int) leftMotor);
+  leftMotor->run(FORWARD);
+  Serial.println((int) leftMotor);
+  rightMotor->run(FORWARD);
+  Serial.println((int) leftMotor);
+  delay(1000);
+  Serial.println("running");
+  */
 }
 
 /**************************************************************************/
