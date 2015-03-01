@@ -12,12 +12,10 @@ console.log('starting...');
 var commandMotors = function(leftMotorSpeed, rightMotorSpeed) {
     console.log('writing')
     var myBuffer= new Buffer(3);
-    myBuffer[0] = 0xff;
+    myBuffer[0] = 255;
     myBuffer[1] = leftMotorSpeed;
     myBuffer[2] = rightMotorSpeed;
-    myBuffer[1] = 0x30;
-    myBuffer[2] = 0x40;
-    console.log(fs.appendFile(controllerFile, myBuffer, function(err) {if (err) console.log("ERROR!!" + err);}));
+    console.log(fs.appendFileSync(controllerFile, myBuffer))
     console.log('finished writing');
 }
 
@@ -26,12 +24,14 @@ var drive = function(forwardSpeed, rotationSpeed) {
     if (leftMotorSpeed == 255){
         leftMotorSpeed = 254;
     }
-    var rightMotorSpeed = 255/2;
-    // var  = 0.5*forwardSpeed + 0.5*rotationSpeed;
+    var rightMotorSpeed = 255/2; // var  = 0.5*forwardSpeed + 0.5*rotationSpeed;
     // var rightMotorSpeed = 0.5*forwardSpeed - 0.5*rotationSpeed;
     commandMotors(leftMotorSpeed, rightMotorSpeed);
 }
 
+commandMotors(48, 64);
+commandMotors(100,101);
+commandMotors(102,103);
 http.createServer(function (req, res) {
     console.log(req)
 

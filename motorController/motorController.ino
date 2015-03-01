@@ -22,7 +22,7 @@ void setup() {
   // put your setup code here, to run once:
   // Open up  a pipe
   
-  char * myfifo = "/tmp/controller";
+  char * myfifo = "../controller";
   /* open, read, and display the message from the FIFO */
   fd = open(myfifo, O_RDONLY);
   Adafruit_MotorShield AFMS = Adafruit_MotorShield();
@@ -35,8 +35,10 @@ void loop() {
   // put your main code here, to run repeatedly: 
   // Read from the pipe (3 bytes)
   // We wait until we see a 0 byte
+  
+  int bytesRead = read(fd, buf, MAX_BUF);
+  if (bytesRead == 0) {return;}
 
-  read(fd, buf, MAX_BUF);
   if (currState == ZEROBYTES) {
     if (buf[0] == ALIGNMENT_NUMBER) {
       currState = TWOBYTES;
