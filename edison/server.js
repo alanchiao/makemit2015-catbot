@@ -10,20 +10,23 @@ var maxForwardSpeed = 4;
 console.log('starting...');
 
 var commandMotors = function(leftMotorSpeed, rightMotorSpeed) {
-    var myBuffer= new Buffer(3);
+    var myBuffer= new Buffer(1);
     myBuffer[0] = 255;
-    myBuffer[1] = leftMotorSpeed;
-    myBuffer[2] = rightMotorSpeed;
+    //myBuffer[1] = leftMotorSpeed;
+    //myBuffer[2] = rightMotorSpeed;
     fs.appendFileSync(controllerFile, myBuffer);
 }
 
-var drive = function(forwardSpeed, rotationSpeed) {
-    var leftMotorSpeed = forwardSpeed / maxForwardSpeed * 255;
+var drive = function(leftMotorSpeed, rightMotorSpeed) {
+    var leftMotorSpeed = parseInt(leftMotorSpeed / maxForwardSpeed * 255);
     if (leftMotorSpeed == 255){
         leftMotorSpeed = 254;
     }
-    var rightMotorSpeed = 255/2; // var  = 0.5*forwardSpeed + 0.5*rotationSpeed;
-    // var rightMotorSpeed = 0.5*forwardSpeed - 0.5*rotationSpeed;
+    var rightMotorSpeed = parseInt(rightMotorSpeed / maxForwardSpeed * 255);
+    if (rightMotorSpeed == 255) {
+       rightMotorSpeed = 254;
+    }
+
     commandMotors(leftMotorSpeed, rightMotorSpeed);
 }
 
@@ -37,10 +40,10 @@ http.createServer(function (req, res) {
         velocity = query['velocity'];
         console.log("action: " + action + ", velocity: " + velocity);
         if (action == 'MoveForward') {
-            drive(velocity, 0);
+            drive(velocity, velocity);
         }
         else if (action == 'TurnLeft') {
-            drive(0, -1*velocity);
+            drive(velocity, 0);
         }
         else if (action == 'TurnRight') {
             drive(0, velocity);
